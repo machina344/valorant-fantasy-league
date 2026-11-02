@@ -192,6 +192,9 @@ tr.me td{background:color-mix(in srgb,var(--signal) 10%,transparent)}
 .fixt:first-child{border-top:0}
 .fixt .fw{min-width:72px;font-size:11.5px}
 .pmsub{font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:0 0 5px 30px}
+.tipbox{position:fixed;z-index:60;display:none;max-width:280px;background:#0a0e15;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12.5px;line-height:1.5;color:var(--text);box-shadow:0 10px 26px rgba(0,0,0,.55);pointer-events:none}
+[data-t]{cursor:help}
+.c-attrs [data-t],.c-mx [data-t],th[data-t]{text-decoration:underline dotted rgba(139,151,171,.45);text-underline-offset:2px}
 .agch{font-size:10px;color:var(--muted)}
 .fchg{font-size:11px;margin-left:4px}.fchg.up{color:var(--win)}.fchg.down{color:var(--loss)}
 .reveal-hide{opacity:0 !important}
@@ -226,7 +229,7 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 40px;font-size:12px;color:va
 <footer>
   <p>Fan project. Valorant Fantasy League was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</p>
   <p id="datanote"></p>
-  <p class="num" style="font-size:11px;opacity:.8">VFL v0.7.2 · built 2026-11-02</p>
+  <p class="num" style="font-size:11px;opacity:.8">VFL v0.8.0 · built 2026-11-02</p>
 </footer>
 
 <script>
@@ -866,20 +869,20 @@ function ladder(){
 /* ---------- card rendering ---------- */
 function cardHTML(c,opts={}){
   const R=RAR[c.rar];const o=opts.owned;const f=o?(o.form||0):0;
-  const formB=o?`<span class="form ${f>0?"up":f<0?"down":"flat"}" title="Form">${f>0?"▲+"+f:f<0?"▼"+f:"• 0"}</span>`:"";
+  const formB=o?`<span class="form ${f>0?"up":f<0?"down":"flat"}" data-t="form">${f>0?"▲+"+f:f<0?"▼"+f:"• 0"}</span>`:"";
   const fat=o?Math.round(o.fat||0):0;
-  const fatB=o&&fat>=15?`<span class="fatb ${fatPen(o)>0?"bad":""}">⚡ ${100-fat}%</span>`:"";
+  const fatB=o&&fat>=15?`<span class="fatb ${fatPen(o)>0?"bad":""}" data-t="fat">⚡ ${100-fat}%</span>`:"";
   const ovr=o?c.o+f-fatPen(o):c.o;
   return `<div class="card r-${c.rar} ${opts.locked?"locked":""} ${opts.cls||""}" style="--rc:${R.c}" ${opts.attr||""}>
-    <div class="c-top"><div class="c-ovr num">${ovr}<small>${R.name}</small></div>
+    <div class="c-top"><div class="c-ovr num" data-t="ovr">${ovr}<small>${R.name}</small></div>
       <div class="c-role" style="color:${ROLES[c.r].c}">${roleSvg(c.r)}${c.r}</div></div>
     <div class="c-name">${esc(c.h)}</div>
     <div class="c-team"><span class="tag">${esc(c.t)}</span>${esc(c.tn)}${c.cc?` <span class="muted">${esc(c.cc)}</span>`:""}</div>
     <div class="c-ev">${c.w?'<span class="star">★ Winner · </span>':""}${esc(c.ev)}${c.place&&!c.w?` · ${esc(c.place)}`:""}</div>
-    ${c.ca?`<div class="c-ev" style="font-family:var(--mono);font-size:10px">${esc(c.ca.join(" · "))}</div>`:""}
-    ${c.co?"":`<div class="c-mx">MEN ${c.men} · STA ${c.sta}</div>`}
+    ${c.ca?`<div class="c-ev" style="font-family:var(--mono);font-size:10px" data-t="ca">${esc(c.ca.join(" · "))}</div>`:""}
+    ${c.co?"":`<div class="c-mx"><span data-t="men">MEN ${c.men}</span> · <span data-t="sta">STA ${c.sta}</span></div>`}
     ${formB}${fatB}
-    ${c.co?`<div class="c-attrs" style="grid-template-columns:repeat(3,1fr)"><div>Tactics<b>${c.a[0]}</b></div><div>Prep<b>${c.a[1]}</b></div><div>Motiv.<b>${c.a[2]}</b></div></div>`:`<div class="c-attrs"><div>Aim<b>${c.a[0]}</b></div><div>Ent<b>${c.a[1]}</b></div><div>Utl<b>${c.a[2]}</b></div><div>Con<b>${c.a[3]}</b></div><div>Clt<b>${c.a[4]}</b></div></div>`}
+    ${c.co?`<div class="c-attrs" style="grid-template-columns:repeat(3,1fr)"><div data-t="tac">Tactics<b>${c.a[0]}</b></div><div data-t="pre">Prep<b>${c.a[1]}</b></div><div data-t="mot">Motiv.<b>${c.a[2]}</b></div></div>`:`<div class="c-attrs"><div data-t="aim">Aim<b>${c.a[0]}</b></div><div data-t="ent">Ent<b>${c.a[1]}</b></div><div data-t="utl">Utl<b>${c.a[2]}</b></div><div data-t="con">Con<b>${c.a[3]}</b></div><div data-t="clt">Clt<b>${c.a[4]}</b></div></div>`}
   </div>`;
 }
 
@@ -906,8 +909,8 @@ function viewCreate(){
 function chemPanel(){
   const s=starters();if(!s.length)return "";
   const ch=chemistry(s.map(cardOf));const ms=myStrength();
-  return `<section class="panel"><div class="row"><h3>Team strength</h3><span class="spacer"></span><span class="num" style="font-size:20px;font-weight:600">${ms?ms.total.toFixed(1):"—"}</span></div>
-    ${ms?`<p class="muted">Average rating with form <span class="num">${ms.avg.toFixed(1)}</span>, chemistry <span class="num">${ms.chem>=0?"+":""}${ms.chem}</span>, coach prep <span class="num">${ms.coach>=0?"+":""}${ms.coach.toFixed(1)}</span></p>`:`<p class="muted">Fill ${5-s.length} more starting slot${5-s.length===1?"":"s"} to play.</p>`}
+  return `<section class="panel"><div class="row"><h3 data-t="str">Team strength</h3><span class="spacer"></span><span class="num" data-t="str" style="font-size:20px;font-weight:600">${ms?ms.total.toFixed(1):"—"}</span></div>
+    ${ms?`<p class="muted">Average rating with form <span class="num">${ms.avg.toFixed(1)}</span>, chemistry <span class="num" data-t="chem">${ms.chem>=0?"+":""}${ms.chem}</span>, coach prep <span class="num">${ms.coach>=0?"+":""}${ms.coach.toFixed(1)}</span></p>`:`<p class="muted">Fill ${5-s.length} more starting slot${5-s.length===1?"":"s"} to play.</p>`}
     <div class="chem">${ch.notes.map(([k,t])=>`<span class="${k}">${esc(t)}</span>`).join("")}</div>
     <p class="muted" style="font-size:12.5px">Slots are role-locked: each core slot takes its own role or a Flex player, and the fifth slot takes anyone — so five duelists is impossible. Chemistry: exact role in every slot beats Flex cover, teammates from the same org and a stacked region add more.</p></section>`;
 }
@@ -923,9 +926,9 @@ function viewClub(){
   if(!state.club)return viewCreate();
   const c=state.club;const rank=ladder().findIndex(r=>r.you)+1;
   return `<section class="panel"><div class="clubhead">${crest(c,76)}<div class="meta"><h2>${esc(c.name)}</h2>
-      <div class="row" style="gap:8px"><span class="pill you">${division(state.me.rating)}</span><span class="pill">${esc(c.region||"?")}</span><span class="pill ${importCount()>2?"bad":""}">${importCount()}/2 imports</span><span class="muted">Ladder rank #${rank} of ${state.teams.length+1}</span></div></div></div>
+      <div class="row" style="gap:8px"><span class="pill you" data-t="division">${division(state.me.rating)}</span><span class="pill">${esc(c.region||"?")}</span><span class="pill ${importCount()>2?"bad":""}" data-t="imports">${importCount()}/2 imports</span><span class="muted">Ladder rank #${rank} of ${state.teams.length+1}</span></div></div></div>
     <div class="stats">
-      <div class="stat"><div class="k">Rating</div><div class="v num">${state.me.rating}</div></div>
+      <div class="stat" data-t="elo"><div class="k">Rating</div><div class="v num">${state.me.rating}</div></div>
       <div class="stat"><div class="k">Record</div><div class="v num">${state.me.w}–${state.me.l}</div></div>
       <div class="stat"><div class="k">Credits</div><div class="v num" style="color:var(--signal)">${state.credits}</div></div>
       <div class="stat"><div class="k">Cards</div><div class="v num">${state.owned.length}</div></div>
@@ -992,8 +995,8 @@ function viewPlay(){
     <span class="muted">Strength <span class="num" style="color:var(--text)">${ms.total.toFixed(1)}</span> · Rating <span class="num" style="color:var(--text)">${state.me.rating}</span> · Coach <span style="color:var(--text)">${coach?esc(coach.h):"none"}</span></span></div></div></section>
     <section class="panel"><h3>Ladder matches</h3><p class="muted">The ladder holds ${state.teams.length} clubs: fictional sides down low, real Tier 2 orgs in the middle divisions and real Tier 1 rosters at the top. You only see the 12 closest to your rating — climb to unlock harder, richer opponents, with a one-time bonus at each new division. Series fatigue your players; they recover about 12 points per real hour, so deep rosters climb faster. Beating clubs far below you pays almost nothing.</p>
     <div>${opps.map(t=>{const bo=t.fmt||1;const w=seriesProb(matchWinProb(roundP(ms.total,t.str)),bo);return `<div class="opp">${crest(t,38)}
-      <div><div class="nm"><button class="linkish" data-action="team" data-v="${t.id}">${esc(t.name)}</button> ${bo===3?'<span class="pill bo3">Bo3</span>':'<span class="pill">Bo1</span>'}</div><div class="row" style="gap:6px;margin-top:3px"><span class="pill ${t.real?(t.tier===3?"t3":"t2"):"t"+t.tier}">${tierName(t)}</span><span class="pill">${esc(t.region||"")}</span><span class="muted num" style="font-size:12.5px">STR ${t.str} · ${t.rating}</span></div></div>
-      <div class="odds2" style="color:${w>.6?"var(--win)":w<.35?"var(--loss)":"var(--text)"}">${Math.round(w*100)}%<small>win chance</small></div>
+      <div><div class="nm"><button class="linkish" data-action="team" data-v="${t.id}">${esc(t.name)}</button> ${bo===3?'<span class="pill bo3" data-t="bo">Bo3</span>':'<span class="pill" data-t="bo">Bo1</span>'}</div><div class="row" style="gap:6px;margin-top:3px"><span class="pill ${t.real?(t.tier===3?"t3":"t2"):"t"+t.tier}" data-t="tier">${tierName(t)}</span><span class="pill">${esc(t.region||"")}</span><span class="muted num" style="font-size:12.5px"><span data-t="str">STR ${t.str}</span> · <span data-t="elo">${t.rating}</span></span></div></div>
+      <div class="odds2" data-t="win" style="color:${w>.6?"var(--win)":w<.35?"var(--loss)":"var(--text)"}">${Math.round(w*100)}%<small>win chance</small></div>
       <button class="btn sm primary" data-action="play" data-v="${t.id}">Play · +${rewardFor(t,true)*(bo===3?2:1)}</button></div>`}).join("")}</div></section>`;
 }
 function viewEvents(){
@@ -1010,7 +1013,7 @@ function viewEvents(){
     cur=`<section class="panel"><div class="row"><h3>${esc(tr.name)}</h3><span class="spacer"></span><span class="muted">${tr.alive.length} team${tr.alive.length===1?"":"s"} left</span></div>${next}<div class="feed">${res}</div></section>`;
   }
   const trophies=(state.trophies||[]).map(t=>`<span class="pill t3">★ ${esc(t.name)} · ${t.at}</span>`).join(" ");
-  return `<section class="row"><h2>VFL events</h2><span class="spacer"></span><span class="pill ${ic>2?"bad":""}">${ic}/2 imports</span></section>
+  return `<section class="row"><h2>VFL events</h2><span class="spacer"></span><span class="pill ${ic>2?"bad":""}" data-t="imports">${ic}/2 imports</span></section>
     <p class="muted">The Regional League is domestic: Bo1 games, only clubs from ${state.club?esc(state.club.region):"your region"}, and at most 2 imported starters. International events are all Bo3 with bigger prizes, and stamina and mental get tested across every map.</p>
     ${cur}
     <section class="packs">${TOURS.map(T=>{const lock=state.me.rating<T.minRating;const impBad=T.regional&&ic>2;return `<div class="pack" style="--pc:${T.id==="champions"?"#f2a33a":T.regional?"#5fd08a":"#63c3d3"}"><div class="nm">${T.name}</div><p>${T.desc}</p>
@@ -1030,7 +1033,7 @@ function viewOnline(){
     const w=side&&ms?seriesProb(matchWinProb(roundP(ms.total,side.str)),1):0;
     const btns=me?`<span class="muted" style="font-size:12px">your club</span><span></span>`
       :!side?`<span class="muted" style="font-size:12px">incomplete squad</span><span></span>`
-      :`<div class="odds2" style="color:${w>.6?"var(--win)":w<.35?"var(--loss)":"var(--text)"}">${Math.round(w*100)}%<small>Bo1 win</small></div>
+      :`<div class="odds2" data-t="win" style="color:${w>.6?"var(--win)":w<.35?"var(--loss)":"var(--text)"}">${Math.round(w*100)}%<small>Bo1 win</small></div>
       <div style="display:flex;flex-direction:column;gap:4px"><button class="btn sm primary" data-action="netplay" data-v="${esc(d.id)}" data-bo="1" ${ms?"":"disabled"}>Bo1</button><button class="btn sm" data-action="netplay" data-v="${esc(d.id)}" data-bo="3" ${ms?"":"disabled"}>Bo3 ×2</button></div>`;
     return `<div class="opp">${crest({c1:+d.c1||0,c2:+d.c2||0,shape:d.shape,pat:d.pat,tag:String(d.tag||"?")},38)}
       <div><div class="nm">${esc(String(d.name||"Club").slice(0,28))} ${me?'<span class="pill you">You</span>':""}</div>
@@ -1043,7 +1046,7 @@ function viewOnline(){
 function boxScore(list,name,mvp,showForm){
   const rows=list.slice().sort((x,y)=>y.acs-x.acs).map(x=>`<tr><td><span class="tcell" style="gap:6px"><span class="role" style="--rc:${ROLES[x.role].c}">${roleSvg(x.role)}</span>${esc(x.handle)}<span class="agch">${esc((x.ag||[]).join(" / "))}</span>${x.handle===mvp?'<span class="mvp">MVP</span>':""}${showForm&&x.fchg?`<span class="fchg ${x.fchg>0?"up":"down"}">${x.fchg>0?"▲ form":"▼ form"}</span>`:""}</span></td>
     <td class="r num">${x.acs}</td><td class="r num">${x.k}</td><td class="r num">${x.d}</td><td class="r num">${x.k-x.d>0?"+":""}${x.k-x.d}</td>${x.stamina!=null?`<td class="r num hide-sm" style="color:${x.stamina<70?"var(--loss)":"var(--muted)"}">${x.stamina}</td>`:""}</tr>`).join("");
-  return `<div class="tablewrap"><table class="box"><thead><tr><th>${esc(name)}</th><th class="r">ACS</th><th class="r">K</th><th class="r">D</th><th class="r">+/−</th>${list[0].stamina!=null?'<th class="r hide-sm">STA</th>':""}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div class="tablewrap"><table class="box"><thead><tr><th>${esc(name)}</th><th class="r" data-t="acs">ACS</th><th class="r">K</th><th class="r">D</th><th class="r" data-t="kd">+/−</th>${list[0].stamina!=null?'<th class="r hide-sm" data-t="stah">STA</th>':""}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function viewPrematch(){
   const pm=state.prematch;if(!pm||!state.club)return viewPlay();
@@ -1058,7 +1061,7 @@ function viewPrematch(){
   const reads=(pm.reads||[]).map((r,i)=>`<div class="readline">${esc(r.txt)} ${r.applied?'<b style="color:var(--win)">✓ applied</b>':r.sub!=null?`<button class="btn sm" data-action="applyread" data-v="${i}">Apply swap</button>`:""}</div>`).join("");
   return `<section class="board"><div class="mapname">Pre-match · Best of ${pm.bo}${pm.tourName?" · "+esc(pm.tourName):""}</div>
     <div class="score"><div class="side">${crest(state.club,56)}<div class="nm">${esc(state.club.name)}</div></div>
-      <div class="digits num" style="font-size:38px"><span class="${w>=.5?"lead":""}">${Math.round(w*100)}%</span></div>
+      <div class="digits num" style="font-size:38px" data-t="win"><span class="${w>=.5?"lead":""}">${Math.round(w*100)}%</span></div>
       <div class="side">${crest(opp,56)}<div class="nm">${esc(opp.name)}</div></div></div>
     <p class="muted" style="text-align:center;font-size:12px">series win chance with the current five</p></section>
     <section class="panel"><h3>Their five</h3><div>${them||'<span class="muted">Unknown roster.</span>'}</div></section>
@@ -1183,6 +1186,7 @@ function render(){
   const cur=state.view==="match"?(state.lastMatch?.tourName?"events":"play"):state.view==="prematch"?(state.prematch?.kind==="tour"?"events":state.prematch?.kind==="net"?"online":"play"):state.view==="team"?"ladder":state.view;
   document.getElementById("tabs").innerHTML=tabs.map(([k,l])=>`<button data-action="nav" data-v="${k}" ${cur===k?'aria-current="page"':""} ${!state.club&&k!=="club"?"disabled":""}>${l}</button>`).join("");
   document.getElementById("wallet").innerHTML=state.club?`<b>${state.credits}</b> cr · ${state.me.rating}`:"";
+  hideTip();
   const app=document.getElementById("app");
   app.innerHTML=({club:viewClub,packs:viewPacks,collection:viewCollection,play:viewPlay,events:viewEvents,online:viewOnline,ladder:viewLadder,match:viewMatch,prematch:viewPrematch,team:viewTeam}[state.view]||viewClub)();
   if(state.view==="online")fillNames();
@@ -1272,6 +1276,47 @@ document.addEventListener("input",e=>{
   if(el.id==="club-name")state.draft.name=el.value;else if(el.id==="club-tag")state.draft.tag=el.value.toUpperCase();else return;
   const pv=document.getElementById("crest-preview");if(pv)pv.innerHTML=crest(state.draft,140);
 });
+/* ---------- tooltips ---------- */
+const TIPS={
+ ovr:"Overall rating, era-adjusted to the 2026 level of play. OVR with form and fatigue applied is what the match sim uses every round.",
+ aim:"Aim — fragging power at this event (ACS, kills per round, ADR, headshot %). The biggest driver of who gets kills each round.",
+ ent:"Entry — opening duels: first kills earned vs first deaths given. High-entry players win the round's first fight more often.",
+ utl:"Utility — support impact (assists per round, KAST). Feeds damage output and round presence in the sim.",
+ con:"Consistency — how reliably they show up round to round (KAST and K/D).",
+ clt:"Clutch — 1vX conversion. Clutch players star in late-round feed moments.",
+ men:"Mental (45–97) — tilt resistance, computed from the player's real slumps, international vs league form and clutch rate. Checked on losing streaks and after lost maps in a Bo3; a failed check carries a penalty into the next map.",
+ sta:"Stamina (45–97) — endurance, from rounds played and KAST. Low-stamina players fade in maps 2–3 and build fatigue faster.",
+ form:"Form (−3 to +3) — hot or cold streak added to the card's rating. Top two performers of a series gain form, the bottom two tend to lose it; benched subs drift back to zero.",
+ fat:"Fatigue — builds from playing series (a Bo3 ≈ 3× a Bo1). Every 30 points costs 1 rating. Recovers ~12 points per real hour — rest or rotate subs.",
+ win:"Chance your club wins this whole series: your five's average rating (with form and fatigue) plus chemistry and coach prep, against theirs, simulated round by round. A Bo3 favors the stronger team more than a Bo1 of the same matchup.",
+ str:"Team strength — the five starters' average effective rating plus chemistry and coach prep. A few points swing round odds noticeably.",
+ elo:"Ladder rating (Elo). A win moves it up to ~32 points (40 in a Bo3) depending on how favored you were. Divisions are rating bands; real Tier 1 teams hold the top.",
+ tier:"Opponent class: fictional clubs (Rookie → Champion) fill the lower ladder, real Tier 2 orgs the middle, real Tier 1 rosters the top.",
+ bo:"Series format. Bo3 pays double credits and moves rating further, but drains about 3× the fatigue and tests mental between maps.",
+ imports:"Import rule — in domestic events, at most 2 of your 5 starters may come from outside your club's home region.",
+ division:"Your division is a rating band. Reaching a new one for the first time pays a one-time credit bonus.",
+ acs:"ACS — Average Combat Score per round across the series.",
+ kd:"+/− — kills minus deaths across the series.",
+ stah:"STA — stamina the player has left after this series (100 = fresh).",
+ chem:"Chemistry — role coverage in your slots, teammates from the same org, and region stacking. Added straight to team strength.",
+ tac:"Tactics — the coach's in-match calls: whether timeouts and pistol-round forces actually land.",
+ pre:"Prep — pre-match value: adds to team strength, powers half-time adjustments, and sets how accurate the scouting report is.",
+ mot:"Motivation — steadies players after a lost map, lowering mental-check failures between maps.",
+ ca:"Comfort agents — picks this player is at home on. On-comfort maps get a small boost; being forced off them costs aim."
+};
+const tipEl=document.createElement("div");tipEl.className="tipbox";document.body.appendChild(tipEl);
+let tipOn=null;
+function showTip(el){const txt=TIPS[el.dataset.t];if(!txt)return;
+  tipEl.textContent=txt;tipEl.style.display="block";
+  const r=el.getBoundingClientRect();const tr=tipEl.getBoundingClientRect();
+  let x=clamp(r.left+r.width/2-tr.width/2,8,Math.max(8,innerWidth-tr.width-8));
+  let y=r.top-tr.height-8;if(y<58)y=r.bottom+8;
+  tipEl.style.left=x+"px";tipEl.style.top=y+"px";tipOn=el;}
+function hideTip(){if(tipOn){tipEl.style.display="none";tipOn=null}}
+document.addEventListener("pointerover",e=>{const el=e.target.closest&&e.target.closest("[data-t]");if(el&&el!==tipOn)showTip(el)});
+document.addEventListener("click",e=>{const el=e.target.closest&&e.target.closest("[data-t]");if(el)showTip(el);else hideTip()},true);
+addEventListener("scroll",hideTip,{passive:true});
+
 /* ---------- online (claude.ai artifact db, or Firebase on the public site) ---------- */
 const FB_CONFIG={
   apiKey:"AIzaSyDh_pmvRM9_GRl907iSQ8wRdX1HUE7zPMQ",
