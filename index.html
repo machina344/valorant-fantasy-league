@@ -226,7 +226,7 @@ footer{max-width:960px;margin:0 auto;padding:0 16px 40px;font-size:12px;color:va
 <footer>
   <p>Fan project. Valorant Fantasy League was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</p>
   <p id="datanote"></p>
-  <p class="num" style="font-size:11px;opacity:.8">VFL v0.7.0 · built 2026-11-02</p>
+  <p class="num" style="font-size:11px;opacity:.8">VFL v0.7.1 · built 2026-11-02</p>
 </footer>
 
 <script>
@@ -1145,12 +1145,12 @@ function animateMatch(){
       const el=document.querySelector(`.rd[data-m="${mi}"][data-i="${ri}"]`);el&&el.classList.remove("reveal-hide");
       if(mp.rounds[ri].w)a++;else b++;showLines(mi,r=>r===ri+1);
       if(m.bo===1){sa.textContent=a;sb.textContent=b}
-      ri++;animTimer=setTimeout(tick,95);return;
+      ri++;animTimer=setTimeout(tick,1000);return;
     }
     showLines(mi,r=>r===99);document.querySelector(`.mapscore[data-ms="${mi}"]`).style.visibility="visible";
     if(mp.a>mp.b)wa++;else wb++;if(m.bo>1){sa.textContent=wa;sb.textContent=wb}
     mi++;ri=0;a=0;b=0;
-    if(mi<R.maps.length){const nb=document.querySelector(`[data-mapblock="${mi}"]`);nb.style.display="";animTimer=setTimeout(tick,900)}else animTimer=setTimeout(tick,300);
+    if(mi<R.maps.length){const nb=document.querySelector(`[data-mapblock="${mi}"]`);nb.style.display="";animTimer=setTimeout(tick,2500)}else animTimer=setTimeout(tick,400);
   };
   animTimer=setTimeout(tick,300);
 }
